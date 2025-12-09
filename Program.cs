@@ -1,56 +1,66 @@
 ﻿using System;
+using System.IO;
 using Wasmtime;
 
-using var engine = new Engine();
+class Program
+{
+    static void Main(string[] args)
+    {
+        // 1. Initialize Engine
+        using var engine = new Engine();
+        using var module = Module.FromFile(engine, "./zisk-wasm-stark-verifier/target/wasm32-unknown-unknown/release/zisk_wasm_stark_verifier.wasm");
+        using var linker = new Linker(engine);
+        using var store = new Store(engine);
 
-using var module = Module.FromText(
-    engine,
-    "hello",
-    "(module (func $hello (import \"\" \"hello\")) (func (export \"run\") (call $hello)))"
-);
+        // 2. Instantiate
+        var instance = linker.Instantiate(store, module);
 
-using var linker = new Linker(engine);
-using var store = new Store(engine);
+        // 3. Get Exports
+        var memory = instance.GetMemory("memory");
+        var malloc = instance.GetFunction("alloc");
+        var verifyFunc = instance.GetFunction("verify_stark");
 
-linker.Define(
-    "",
-    "hello",
-    Function.FromCallback(store, () => Console.WriteLine("Hello from C#!"))
-);
+        if (memory is null || malloc is null || verifyFunc is null)
+        {
+            Console.Error.WriteLine("Error: Wasm module is missing required exports.");
+            return;
+        }
 
-var instance = linker.Instantiate(store, module);
-var run = instance.GetAction("run")!;
-run();
+        // Helper: Write bytes to Wasm Memory
+        int WriteToWasm(byte[] data)
+        {
+            // 1. Allocate memory inside Wasm (malloc returns an address)
+            var ptrObj = malloc.Invoke(data.Length);
+            int ptr = Convert.ToInt32(ptrObj);
 
+            // 2. Write data using GetSpan
+            var targetSpan = memory.GetSpan((long)ptr, data.Length);
+            data.CopyTo(targetSpan);
 
-// using System;
-// using Wasmtime;
+            return ptr;
+        }
 
-// using var engine = new Engine();
-// using var module = Module.FromTextFile(engine, "global.wat");
-// using var linker = new Linker(engine);
-// using var store = new Store(engine);
+        // 4. Load Data
+        var proofPath = "proofs/2643736/zkcloud_884fcc21-d522-4b4a-b535-7cfde199485c_2643736.proof.bin";
+        var vkPath = "proofs/2643736/zkcloud_884fcc21-d522-4b4a-b535-7cfde199485c.vk.bin";
+        byte[] proofBytes = File.ReadAllBytes(proofPath);
+        byte[] vkBytes = File.ReadAllBytes(vkPath);
 
-// var global = new Global(store, ValueKind.Int32, 1, Mutability.Mutable);
+        try
+        {
+            int proofPtr = WriteToWasm(proofBytes);
+            int vkPtr = WriteToWasm(vkBytes);
 
-// linker.Define("", "global", global);
+            Console.WriteLine($"Calling verify_stark(ptr={proofPtr}, len={proofBytes.Length}, ...)");
 
-// linker.Define(
-//     "",
-//     "print_global",
-//     Function.FromCallback(store, (Caller caller) =>
-//     {
-//         Console.WriteLine($"The value of the global is: {global.GetValue()}.");
-//     }
-// ));
+            // 5. Invoke verify_stark
+            var result = verifyFunc.Invoke(proofPtr, proofBytes.Length, vkPtr, vkBytes.Length);
 
-// var instance = linker.Instantiate(store, module);
-
-// var run = instance.GetAction<int>("run");
-// if (run is null)
-// {
-//     Console.WriteLine("error: run export is missing");
-//     return;
-// }
-
-// run(20);
+            Console.WriteLine("verify_stark returned: " + result);
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Wasm Execution Failed: {ex.Message}");
+        }
+    }
+}
