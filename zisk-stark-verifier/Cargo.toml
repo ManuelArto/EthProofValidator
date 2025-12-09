@@ -1,0 +1,22 @@
+[package]
+name = "zisk-stark-verifier"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"] 
+
+[dependencies]
+proofman-verifier = { git = "https://github.com/0xPolygonHermez/pil2-proofman.git", tag = "v0.12.0" }
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+
+# Error handling
+anyhow = "1.0"
+
+# Optimize for size in release builds
+[profile.release]
+opt-level = 3   # Max speed
+lto = true      # Link Time Optimization (makes code faster)
+strip = true    # Remove symbols to make the .dll smaller
