@@ -1,14 +1,12 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 class Program
 {
     // ---------------------------------------------------------
-    // Define the Native Interface
+    // Define the ZK Verifier FFI
     // ---------------------------------------------------------
     
-    const string LibName = "libzisk_stark_verifier.so"; 
+    const string LibName = "libmulti_zk_verifier.so"; 
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr alloc(nuint len);
@@ -17,12 +15,9 @@ class Program
     public static extern void dealloc(IntPtr ptr, nuint len);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int verify_stark(IntPtr proofPtr, nuint proofLen, IntPtr vkPtr, nuint vkLen);
+    public static extern int verify(IntPtr proofPtr, nuint proofLen, IntPtr vkPtr, nuint vkLen);
 
 
-    // ---------------------------------------------------------
-    // Main Logic
-    // ---------------------------------------------------------
     static void Main(string[] args)
     {
         var proofPath = "proofs/2643736/zkcloud_884fcc21-d522-4b4a-b535-7cfde199485c_2643736.bin";
@@ -46,7 +41,7 @@ class Program
 
             pVk = CopyToRust(vkBytes);
 
-            int result = verify_stark(pProof, (nuint)proofBytes.Length, pVk, (nuint)vkBytes.Length);
+            int result = verify(pProof, (nuint)proofBytes.Length, pVk, (nuint)vkBytes.Length);
 
             Console.WriteLine("-----------------------------");
             Console.WriteLine(result == 1 ? "✅ PROOF VALID" : "❌ PROOF INVALID");

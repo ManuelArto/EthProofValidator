@@ -15,13 +15,14 @@ pub unsafe extern "C" fn dealloc(ptr: *mut u8, len: usize) {
 }
 
 #[no_mangle]
-pub extern "C" fn verify_stark(
+pub extern "C" fn verify(
     proof_ptr: *const u8, proof_len: usize, 
     vk_ptr: *const u8, vk_len: usize
 ) -> i32 {
     let proof = unsafe { slice::from_raw_parts(proof_ptr, proof_len) };
     let vk = unsafe { slice::from_raw_parts(vk_ptr, vk_len) };
 
+    // ZISK VERIFIER
     match proofman_verifier::verify(proof, vk) {
         true => 1, 
         false => 0,
