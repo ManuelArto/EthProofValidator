@@ -1,6 +1,9 @@
 use std::slice;
 use std::mem;
 
+mod verifiers;
+use verifiers::{Verifier, VerifierType, zisk::ZiskVerifier, openvm::OpenVmVerifier};
+
 #[no_mangle]
 pub extern "C" fn alloc(len: usize) -> *mut u8 {
     let mut buf = Vec::with_capacity(len);
@@ -16,15 +19,29 @@ pub unsafe extern "C" fn dealloc(ptr: *mut u8, len: usize) {
 
 #[no_mangle]
 pub extern "C" fn verify(
+    zk_type: u32,
     proof_ptr: *const u8, proof_len: usize, 
     vk_ptr: *const u8, vk_len: usize
 ) -> i32 {
     let proof = unsafe { slice::from_raw_parts(proof_ptr, proof_len) };
     let vk = unsafe { slice::from_raw_parts(vk_ptr, vk_len) };
 
-    // ZISK VERIFIER
-    match proofman_verifier::verify(proof, vk) {
-        true => 1, 
-        false => 0,
+    let verifier_type = match VerifierType::try_from(zk_type) {
+        Ok(t) => t,
+        Err(_) => return 0, // Error: Unknown verifier type
+    };
+
+    let result = match verifier_type {
+        VerifierType::Zisk => ZiskVerifier::verify(proof, vk),
+        VerifierType::OpenVm => OpenVmVerifier::verify(proof, vk),
+    };
+
+    match result {
+        Ok(true) => 1,
+        Ok(false) => 0,
+        Err(_) => -1, // Error during verification
     }
 }
+
+#[cfg(test)]
+mod tests;

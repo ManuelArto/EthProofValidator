@@ -8,6 +8,8 @@ crate-type = ["cdylib"]
 [dependencies]
 # Zisk
 proofman-verifier = { git = "https://github.com/0xPolygonHermez/pil2-proofman.git", tag = "v0.12.0" }
+# OpenVM - disable jemalloc feature for WASM compatibility
+verify-stark = { git = "https://github.com/openvm-org/openvm.git", branch = "feat/v1-verify-stark", package = "verify-stark" }
 
 # TODO: add other zk-verifiers
 
@@ -17,8 +19,12 @@ serde = { version = "1.0", features = ["derive"] }
 # Error handling
 anyhow = "1.0"
 
+# Serialization
+bitcode = { version = "0.6.5", default-features = false, features = ["serde"] }
+
 # Optimize for size in release builds
 [profile.release]
 opt-level = 3   # Max speed
 lto = true      # Link Time Optimization (makes code faster)
 strip = true    # Remove symbols to make the .dll smaller
+ 
