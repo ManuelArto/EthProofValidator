@@ -6,7 +6,7 @@ class Program
     // Define the ZK Verifier FFI
     // ---------------------------------------------------------
     
-    const string LibName = "libmulti_zk_verifier.so"; 
+    const string LibName = "./multi-zk-verifier/target/release/libmulti_zk_verifier.so"; 
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     public static extern IntPtr alloc(nuint len);
@@ -15,14 +15,29 @@ class Program
     public static extern void dealloc(IntPtr ptr, nuint len);
 
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
-    public static extern int verify(IntPtr proofPtr, nuint proofLen, IntPtr vkPtr, nuint vkLen);
+    public static extern int verify(int curve_type, IntPtr proof_ptr, nuint proof_len, IntPtr vk_ptr, nuint vk_len);
 
+    public enum ZKType : int
+    {
+        Zisk = 0,
+        OpeVM = 1,
+    }
 
     static void Main(string[] args)
     {
-        var proofPath = "proofs/2643736/zkcloud_884fcc21-d522-4b4a-b535-7cfde199485c_2643736.bin";
-        var vkPath = "proofs/vks/zkcloud.bin";
+        // var zkType = ZKType.Zisk;
+        // var vkPath = "test/vks/zkcloud.bin";
+        // var proofPath = "test/blocks/24025347/zkcloud_3117958.bin";
 
+        var zkType = ZKType.OpeVM;
+        var vkPath = "test/vks/openVM.bin";
+        var proofPath = "test/blocks/24025347/openVM_3117967.bin";
+        
+        VerifyProof(proofPath, vkPath, (int)zkType);
+    }
+
+    private static void VerifyProof(string proofPath, string vkPath, int zkType)
+    {
         if (!File.Exists(proofPath) || !File.Exists(vkPath))
         {
             Console.WriteLine("Files not found!");
@@ -38,10 +53,9 @@ class Program
         try
         {
             pProof = CopyToRust(proofBytes);
-
             pVk = CopyToRust(vkBytes);
 
-            int result = verify(pProof, (nuint)proofBytes.Length, pVk, (nuint)vkBytes.Length);
+            int result = verify(zkType, pProof, (nuint)proofBytes.Length, pVk, (nuint)vkBytes.Length);
 
             Console.WriteLine("-----------------------------");
             Console.WriteLine(result == 1 ? "✅ PROOF VALID" : "❌ PROOF INVALID");
