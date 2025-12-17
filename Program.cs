@@ -27,11 +27,6 @@ public static class ZKVerifier
             pVk = CopyToRust(vkBytes);
 
             int result = verify(zkType, pProof, (nuint)proofBytes.Length, pVk, (nuint)vkBytes.Length);
-            if (result == -1)
-            {
-                throw new Exception("Verification failed due to an internal error in the Rust library.");
-            }
-            
             return result == 1;
         }
         catch (Exception ex)
@@ -51,6 +46,20 @@ public static class ZKVerifier
         IntPtr ptr = alloc((nuint)data.Length);
         Marshal.Copy(data, 0, ptr, data.Length);
         return ptr;
+    }
+
+    public static ZKType ParseTypeFromFilename(string filePath)
+    {
+        string fileName = Path.GetFileName(filePath).ToLower();
+
+        if (fileName.Contains("zisk")) return ZKType.Zisk;
+        if (fileName.Contains("openvm") || fileName.Contains("axiom")) return ZKType.OpenVM;
+        if (fileName.Contains("pico")|| fileName.Contains("brevis")) return ZKType.Pico;
+        if (fileName.Contains("airbender")) return ZKType.Airbender;
+        if (fileName.Contains("sp1") || fileName.Contains("succinct")) return ZKType.Sp1Hypercube;
+        if (fileName.Contains("zkcloud")) return ZKType.ZKCloud;
+
+        return ZKType.Unknown;
     }
 
     public enum ZKType
@@ -102,7 +111,7 @@ class Program
         Console.WriteLine("--------------------------------------------------");
         foreach (var file in Directory.GetFiles(vksDir, "*.bin"))
         {
-            ZKVerifier.ZKType type = ParseTypeFromFilename(file);
+            ZKVerifier.ZKType type = ZKVerifier.ParseTypeFromFilename(file);
             if (type != ZKVerifier.ZKType.Unknown)
             {
                 cache[type] = File.ReadAllBytes(file);
@@ -140,7 +149,7 @@ class Program
 
     static bool ValidateProof(string proofFile, Dictionary<ZKVerifier.ZKType, byte[]> vkCache)
     {
-        ZKVerifier.ZKType type = ParseTypeFromFilename(proofFile);
+        ZKVerifier.ZKType type = ZKVerifier.ParseTypeFromFilename(proofFile);
         var fileName = Path.GetFileName(proofFile);
         
         if (type == ZKVerifier.ZKType.Unknown || !vkCache.ContainsKey(type))
@@ -157,19 +166,5 @@ class Program
         
         Console.WriteLine($"   {fileName,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")}");
         return isValid;
-    }
-
-    static ZKVerifier.ZKType ParseTypeFromFilename(string filePath)
-    {
-        string fileName = Path.GetFileName(filePath).ToLower();
-
-        if (fileName.Contains("zisk")) return ZKVerifier.ZKType.Zisk;
-        if (fileName.Contains("openvm")) return ZKVerifier.ZKType.OpenVM;
-        if (fileName.Contains("pico")) return ZKVerifier.ZKType.Pico;
-        if (fileName.Contains("airbender")) return ZKVerifier.ZKType.Airbender;
-        if (fileName.Contains("sp1")) return ZKVerifier.ZKType.Sp1Hypercube;
-        if (fileName.Contains("zkcloud")) return ZKVerifier.ZKType.ZKCloud;
-
-        return ZKVerifier.ZKType.Unknown;
     }
 }
