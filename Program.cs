@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.Linq; // Powerful tool for counting/filtering (>50% logic)
 
 public static class ZKVerifier
 {
@@ -20,7 +19,6 @@ public static class ZKVerifier
     [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
     private static extern int verify(int curve_type, IntPtr proof_ptr, nuint proof_len, IntPtr vk_ptr, nuint vk_len);
 
-    // Wrapper to handle memory safety automatically
     public static bool Verify(int zkType, byte[] proofBytes, byte[] vkBytes)
     {
         IntPtr pProof = IntPtr.Zero;
@@ -34,8 +32,7 @@ public static class ZKVerifier
             int result = verify(zkType, pProof, (nuint)proofBytes.Length, pVk, (nuint)vkBytes.Length);
             if (result == -1)
             {
-                Console.WriteLine($"[FFI Error] Unknown verifier type: {zkType}");
-                return false;
+                throw new Exception("Verification failed due to an internal error in the Rust library.");
             }
             
             return result == 1;
@@ -47,7 +44,6 @@ public static class ZKVerifier
         }
         finally
         {
-            // Always clean up unmanaged memory!
             if (pProof != IntPtr.Zero) dealloc(pProof, (nuint)proofBytes.Length);
             if (pVk != IntPtr.Zero) dealloc(pVk, (nuint)vkBytes.Length);
         }
@@ -67,7 +63,8 @@ public static class ZKVerifier
         Pico = 2,
         Airbender = 3,
         Sp1Hypercube = 4,
-        Unknown = 99
+        ZKCloud = 5,
+        Unknown = -1
     }
 }
 
@@ -80,26 +77,22 @@ class Program
         string vksDir = Path.Combine(baseTestDir, "vks");
         string blocksDir = Path.Combine(baseTestDir, "blocks");
 
-        // Load all VKs
-        var vkCache = LoadVerificationKeys(vksDir);
-        if (vkCache.Count == 0) 
-        {
-            Console.WriteLine("No verification keys found. Exiting.");
-            return;
-        }
+        RunVerification(vksDir, blocksDir);
+    }
 
-        // Process Blocks
+    static void RunVerification(string vksDir, string blocksDir)
+    {
+        var vkCache = LoadVerificationKeys(vksDir);
+
         if (!Directory.Exists(blocksDir))
         {
-            Console.WriteLine($"❌ Blocks directory not found: {blocksDir}");
+            Console.WriteLine($"Blocks directory not found: {blocksDir}");
             return;
         }
-        string[] blockFolders = Directory.GetDirectories(blocksDir);
-        Console.WriteLine($"\nFound {blockFolders.Length} blocks to process.\n");
 
-        foreach (var blockPath in blockFolders)
+        foreach (var blockDir in Directory.GetDirectories(blocksDir))
         {
-            ProcessBlock(blockPath, vkCache);
+            ProcessBlock(blockDir, vkCache);
         }
     }
 
@@ -178,8 +171,7 @@ class Program
         if (fileName.Contains("pico")) return ZKVerifier.ZKType.Pico;
         if (fileName.Contains("airbender")) return ZKVerifier.ZKType.Airbender;
         if (fileName.Contains("sp1")) return ZKVerifier.ZKType.Sp1Hypercube;
-        // TODO: ZkCloud is an alias for Zisk ???
-        if (fileName.Contains("zkcloud")) return ZKVerifier.ZKType.Zisk;
+        if (fileName.Contains("zkcloud")) return ZKVerifier.ZKType.ZKCloud;
 
         return ZKVerifier.ZKType.Unknown;
     }
