@@ -11,7 +11,7 @@ impl Verifier for Sp1HypercubeVerifier {
             Ok(()) => Ok(true),
             Err(e) => {
                 println!("SP1-Hypercube verification failed: {:?}", e);
-                Ok(false)
+                return Err(anyhow::anyhow!("SP1-Hypercube verification failed: {:?}", e));
             }
         }
     }

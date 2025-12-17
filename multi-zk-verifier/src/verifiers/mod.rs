@@ -1,6 +1,5 @@
 use anyhow::Result;
 
-/// Enum representing the type of zkVM verifier
 #[repr(u32)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum VerifierType {
@@ -27,7 +26,6 @@ impl TryFrom<u32> for VerifierType {
 }
 
 pub trait Verifier {
-    /// Verify a proof given the proof data and verification key
     fn verify(proof: &[u8], vk: &[u8]) -> Result<bool>;
 }
 

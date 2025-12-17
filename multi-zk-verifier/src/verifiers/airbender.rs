@@ -1,6 +1,10 @@
 use super::Verifier;
 use anyhow::Result;
 
+/// Airbender verifier
+///
+/// Placeholder implementation for Airbender STARK proof verification.
+/// Returns true for any valid proof data.
 pub struct AirbenderVerifier;
 
 impl Verifier for AirbenderVerifier {
@@ -11,6 +15,7 @@ impl Verifier for AirbenderVerifier {
         }
 
         // Placeholder: always return true for valid proof data
+        // TODO: Implement full verification logic with execution_utils
         Ok(true)
     }
 }

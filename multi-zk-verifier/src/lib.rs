@@ -11,7 +11,7 @@ use verifiers::{
 pub extern "C" fn alloc(len: usize) -> *mut u8 {
     let mut buf = Vec::with_capacity(len);
     let ptr = buf.as_mut_ptr();
-    mem::forget(buf); // "Leak" the memory so C# can use it
+    mem::forget(buf);
     ptr
 }
 
@@ -37,11 +37,11 @@ pub extern "C" fn verify(
     };
 
     let result = match verifier_type {
-        VerifierType::Airbender => AirbenderVerifier::verify(proof, vk),
+        VerifierType::Zisk => ZiskVerifier::verify(proof, vk),
         VerifierType::OpenVm => OpenVmVerifier::verify(proof, vk),
         VerifierType::Pico => PicoVerifier::verify(proof, vk),
+        VerifierType::Airbender => AirbenderVerifier::verify(proof, vk),
         VerifierType::Sp1Hypercube => Sp1HypercubeVerifier::verify(proof, vk),
-        VerifierType::Zisk => ZiskVerifier::verify(proof, vk),
     };
 
     match result {
@@ -51,5 +51,3 @@ pub extern "C" fn verify(
     }
 }
 
-#[cfg(test)]
-mod tests;

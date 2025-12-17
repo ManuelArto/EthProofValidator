@@ -49,8 +49,11 @@ impl KoalaBearCombineVerifier {
         &self,
         proof: &MetaProof<KoalaBearPoseidon2>,
         riscv_vk: &BaseVerifyingKey<KoalaBearPoseidon2>,
-    ) -> bool {
-        self.machine.verify(proof, riscv_vk).is_ok()
+    ) -> Result<bool> {
+        self.machine
+            .verify(proof, riscv_vk)
+            .map(|_| true)
+            .context("KoalaBear combine verification failed")
     }
 }
 
@@ -70,6 +73,6 @@ impl Verifier for PicoVerifier {
 
         // Create and run verifier
         let verifier = KoalaBearCombineVerifier::new();
-        Ok(verifier.verify(&proof, &riscv_vk))
+        verifier.verify(&proof, &riscv_vk)
     }
 }
