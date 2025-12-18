@@ -4,7 +4,7 @@
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("Starting zkNethermind");
+            Console.WriteLine("Starting Multi-zkVM Verifier...");
 
             var manager = new VerifierManager();
             await manager.InitializeAsync();
