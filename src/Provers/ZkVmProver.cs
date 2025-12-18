@@ -11,6 +11,8 @@ namespace dotnet_zk_verifier.Provers
             _vkBytes = vkBytes;
         }
 
+        public ZKType ZkType => _zkType;
+
         public bool Verify(byte[] proof)
         {
             return NativeMethods.Verify((int)_zkType, proof, _vkBytes);

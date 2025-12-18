@@ -87,12 +87,13 @@ namespace dotnet_zk_verifier
                 return false;
             }
 
+            ZkVmProver prover = _provers[proof.ClusterId];
             try
             {
                 byte[] proofBytes = await _httpClient.GetByteArrayAsync($"/api/proofs/download/{proof.ProofId}");
-                bool isValid = _provers[proof.ClusterId].Verify(proofBytes);
+                bool isValid = prover.Verify(proofBytes);
                 
-                Console.WriteLine($"   Proof {proof.ProofId,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")}");
+                Console.WriteLine($"   Proof {proof.ProofId,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")} ({prover.ZkType.ToString()})");
                 return isValid;
             }
             catch (Exception ex)
