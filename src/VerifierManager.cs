@@ -33,7 +33,7 @@ namespace dotnet_zk_verifier
                     if (string.IsNullOrEmpty(key.VkBinary)) continue;
 
                     byte[] vkBytes = Convert.FromBase64String(key.VkBinary);
-                    ZKType zkType = ParseZkType(key.ZkVm);
+                    ZKType zkType = ZkVmProver.ParseZkType(key.ZkVm);
 
                     if (zkType != ZKType.Unknown)
                     {
@@ -101,18 +101,6 @@ namespace dotnet_zk_verifier
                 Console.WriteLine($"   ❌ Error processing proof {proof.ProofId}: {ex.Message}");
                 return false;
             }
-        }
-
-        private ZKType ParseZkType(string zkvmName)
-        {
-            var name = zkvmName.ToLower();
-            if (name.Contains("zisk")) return ZKType.Zisk;
-            if (name.Contains("openvm")) return ZKType.OpenVM;
-            if (name.Contains("pico")) return ZKType.Pico;
-            if (name.Contains("airbender")) return ZKType.Airbender;
-            if (name.Contains("sp1")) return ZKType.Sp1Hypercube;
-            
-            return ZKType.Unknown;
         }
     }
 }
