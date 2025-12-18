@@ -8,7 +8,6 @@ pub enum VerifierType {
     Pico = 2,
     Airbender = 3,
     Sp1Hypercube = 4,
-    ZKCloud = 5,
 }
 
 impl TryFrom<u32> for VerifierType {
@@ -21,7 +20,6 @@ impl TryFrom<u32> for VerifierType {
             2 => Ok(VerifierType::Pico),
             3 => Ok(VerifierType::Airbender),
             4 => Ok(VerifierType::Sp1Hypercube),
-            5 => Ok(VerifierType::ZKCloud),
             _ => Err(anyhow::anyhow!("Unknown verifier type: {}", value)),
         }
     }

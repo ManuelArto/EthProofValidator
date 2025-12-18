@@ -42,7 +42,6 @@ pub extern "C" fn verify(
         VerifierType::Pico => PicoVerifier::verify(proof, vk),
         VerifierType::Airbender => AirbenderVerifier::verify(proof, vk),
         VerifierType::Sp1Hypercube => Sp1HypercubeVerifier::verify(proof, vk),
-        VerifierType::ZKCloud => ZiskVerifier::verify(proof, vk),
     };
 
     match result {
