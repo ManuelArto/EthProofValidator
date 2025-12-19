@@ -1,24 +1,7 @@
-use std::mem;
 use std::slice;
 
 mod verifiers;
-use verifiers::{
-    airbender::AirbenderVerifier, openvm::OpenVmVerifier, pico::PicoVerifier,
-    sp1_hypercube::Sp1HypercubeVerifier, zisk::ZiskVerifier, Verifier, VerifierType,
-};
-
-#[no_mangle]
-pub extern "C" fn alloc(len: usize) -> *mut u8 {
-    let mut buf = Vec::with_capacity(len);
-    let ptr = buf.as_mut_ptr();
-    mem::forget(buf);
-    ptr
-}
-
-#[no_mangle]
-pub unsafe extern "C" fn dealloc(ptr: *mut u8, len: usize) {
-    let _ = Vec::from_raw_parts(ptr, 0, len);
-}
+use verifiers::{ Verifier, VerifierType, airbender::AirbenderVerifier, openvm::OpenVmVerifier, pico::PicoVerifier, sp1_hypercube::Sp1HypercubeVerifier, zisk::ZiskVerifier };
 
 #[no_mangle]
 pub extern "C" fn verify(
@@ -28,6 +11,12 @@ pub extern "C" fn verify(
     vk_ptr: *const u8,
     vk_len: usize,
 ) -> i32 {
+    // Check for null pointers from C# safety
+    if proof_ptr.is_null() || vk_ptr.is_null() {
+        return -1;
+    }
+
+    // Wrap the raw pointers in Rust slices (zero-copy)
     let proof = unsafe { slice::from_raw_parts(proof_ptr, proof_len) };
     let vk = unsafe { slice::from_raw_parts(vk_ptr, vk_len) };
 
