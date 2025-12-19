@@ -1,8 +1,9 @@
 using dotnet_zk_verifier.src.Clients;
+using dotnet_zk_verifier.src.Models;
 
 namespace dotnet_zk_verifier.src.Verifiers
 {
-    public class VerifierRegistry(EthProofsApiClient apiClient)
+    public class VerifierRegistry(EthProofsApiClient apiClient): IDisposable
     {
         private readonly EthProofsApiClient _apiClient = apiClient;
         private readonly Dictionary<string, ZkProofVerifier> _verifiers = [];
@@ -22,7 +23,7 @@ namespace dotnet_zk_verifier.src.Verifiers
             {
                 if (string.IsNullOrEmpty(key.VkBinary)) continue;
 
-                ZKType zkType = ZkProofVerifier.ParseZkType(key.ZkVm);
+                ZKType zkType = ZkTypeMapper.Parse(key.ZkVm);
                 if (zkType != ZKType.Unknown)
                 {
                     _verifiers[key.ClusterId] = new ZkProofVerifier(zkType, key.VkBinary);
@@ -34,6 +35,16 @@ namespace dotnet_zk_verifier.src.Verifiers
         public ZkProofVerifier? GetVerifier(string clusterId)
         {
             return _verifiers.TryGetValue(clusterId, out var verifier) ? verifier : null;
+        }
+
+        public void Dispose()
+        {
+            foreach (var verifier in _verifiers.Values)
+            {
+                verifier.Dispose();
+            }
+            _verifiers.Clear();
+            GC.SuppressFinalize(this);
         }
     }
 }

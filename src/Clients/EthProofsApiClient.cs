@@ -10,7 +10,12 @@ namespace dotnet_zk_verifier.src.Clients
 
         public EthProofsApiClient()
         {
-            _httpClient = new HttpClient { BaseAddress = new Uri(BaseUrl) };
+            var handler = new SocketsHttpHandler
+            {
+                PooledConnectionLifetime = TimeSpan.FromMinutes(2),
+                MaxConnectionsPerServer = 20
+            };
+            _httpClient = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
         }
 
         public async Task<List<VerificationKey>?> GetActiveKeysAsync()

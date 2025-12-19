@@ -1,49 +1,60 @@
-
+using System.Runtime.InteropServices;
+using dotnet_zk_verifier.src.Models;
 using dotnet_zk_verifier.src.Native;
 
 namespace dotnet_zk_verifier.src.Verifiers
 {
-    public class ZkProofVerifier
+    public class ZkProofVerifier : IDisposable
     {
         private readonly ZKType _zkType;
-        private readonly IntPtr _vkPtr;
-        private readonly nuint _vkLen;
+        private IntPtr _vkPtr;
+        private nuint _vkLen;
+        private bool _disposed;
+
+        public ZKType ZkType => _zkType;
 
         public ZkProofVerifier(ZKType zkType, string vkBinary)
         {
             _zkType = zkType;
-            byte[] vkBytes = Convert.FromBase64String(vkBinary);
-            _vkLen = (nuint)vkBytes.Length;
-            _vkPtr = NativeZKVerifier.CopyToRust(vkBytes);
+            AllocateVkMemory(vkBinary);
         }
-
-        public ZKType ZkType => _zkType;
 
         public bool Verify(byte[] proof)
         {
-            return NativeZKVerifier.Verify((int)_zkType, proof, _vkPtr, _vkLen);
+            ObjectDisposedException.ThrowIf(_disposed, this);
+
+            var isValid = NativeZKVerifier.verify((int)_zkType, proof, (nuint)proof.Length, _vkPtr, _vkLen);
+            return isValid == 1;
         }
 
-        public static ZKType ParseZkType(string zkvmName)
+        private void AllocateVkMemory(string vkBinary)
         {
-            var name = zkvmName.ToLower();
-            if (name.Contains("zisk")) return ZKType.Zisk;
-            if (name.Contains("openvm")) return ZKType.OpenVM;
-            if (name.Contains("pico")) return ZKType.Pico;
-            if (name.Contains("airbender")) return ZKType.Airbender;
-            if (name.Contains("sp1")) return ZKType.Sp1Hypercube;
-
-            return ZKType.Unknown;
+            byte[] vkBytes = Convert.FromBase64String(vkBinary);
+            _vkLen = (nuint)vkBytes.Length;
+            // Allocate unmanaged memory and copy the verification key bytes
+            _vkPtr = Marshal.AllocHGlobal(vkBytes.Length);
+            Marshal.Copy(vkBytes, 0, _vkPtr, vkBytes.Length);
         }
-    }
 
-    public enum ZKType
-    {
-        Zisk = 0,
-        OpenVM = 1,
-        Pico = 2,
-        Airbender = 3,
-        Sp1Hypercube = 4,
-        Unknown = -1
+        // --- Disposal Pattern ---
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            if (_vkPtr != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(_vkPtr);
+                _vkPtr = IntPtr.Zero;
+            }
+            _disposed = true;
+        }
+
+        ~ZkProofVerifier() => Dispose(false);
     }
 }
