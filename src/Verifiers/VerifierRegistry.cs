@@ -26,14 +26,14 @@ namespace dotnet_zk_verifier.src.Verifiers
                 if (zkType != ZKType.Unknown)
                 {
                     _verifiers[key.ClusterId] = new ZkVmVerifier(zkType, key.VkBinary);
-                    Console.WriteLine($"Initialized Prover for Cluster: {key.ClusterId} ({zkType})");
+                    Console.WriteLine($"Initialized Verifier for Cluster: {key.ClusterId} ({zkType})");
                 }
             }
         }
 
-        public ZkVmVerifier? GetProver(string clusterId)
+        public ZkVmVerifier? GetVerifier(string clusterId)
         {
-            return _verifiers.TryGetValue(clusterId, out var prover) ? prover : null;
+            return _verifiers.TryGetValue(clusterId, out var verifier) ? verifier : null;
         }
     }
 }

@@ -33,7 +33,12 @@ namespace dotnet_zk_verifier.src
                 return;
             }
 
-            var tasks = proofResponse.Rows.Select(ProcessProofAsync);
+            
+            var tasks = proofResponse.Rows.Select(async proof =>
+            {
+                var verifier = _verifierRegistry.GetVerifier(proof.ClusterId);
+                return await ProcessProofAsync(proof, verifier);
+            });
             var results = await Task.WhenAll(tasks);
 
             int validCount = results.Count(r => r);
@@ -45,9 +50,8 @@ namespace dotnet_zk_verifier.src
                 : $"❌ BLOCK #{blockId} REJECTED ({validCount}/{totalCount})");
         }
 
-        private async Task<bool> ProcessProofAsync(ProofMetadata proof)
+        private async Task<bool> ProcessProofAsync(ProofMetadata proof, ZkVmVerifier? verifier)
         {
-            var verifier = _verifierRegistry.GetProver(proof.ClusterId);
             if (verifier == null)
             {
                 Console.WriteLine($"   ⚠️  Skipping proof {proof.ProofId}: No verifier for cluster {proof.ClusterId}");
