@@ -1,24 +1,24 @@
 using System.Net.Http.Json;
-using dotnet_zk_verifier.Clients;
-using dotnet_zk_verifier.Models;
-using dotnet_zk_verifier.Provers;
+using dotnet_zk_verifier.src.Clients;
+using dotnet_zk_verifier.src.Models;
+using dotnet_zk_verifier.src.Verifiers;
 
-namespace dotnet_zk_verifier
+namespace dotnet_zk_verifier.src
 {
-    public class VerifierManager
+    public class ZkVerifier
     {
         private readonly EthProofsApiClient _apiClient;
-        private readonly KeyManager _keyManager;
+        private readonly VerifierRegistry _verifierRegistry;
 
-        public VerifierManager()
+        public ZkVerifier()
         {
             _apiClient = new EthProofsApiClient();
-            _keyManager = new KeyManager(_apiClient);
+            _verifierRegistry = new VerifierRegistry(_apiClient);
         }
 
         public async Task InitializeAsync()
         {
-            await _keyManager.InitializeAsync();
+            await _verifierRegistry.InitializeAsync();
         }
 
         public async Task ValidateBlockAsync(long blockId)
@@ -47,10 +47,10 @@ namespace dotnet_zk_verifier
 
         private async Task<bool> ProcessProofAsync(ProofMetadata proof)
         {
-            var prover = _keyManager.GetProver(proof.ClusterId);
-            if (prover == null)
+            var verifier = _verifierRegistry.GetProver(proof.ClusterId);
+            if (verifier == null)
             {
-                Console.WriteLine($"   ⚠️  Skipping proof {proof.ProofId}: No prover for cluster {proof.ClusterId}");
+                Console.WriteLine($"   ⚠️  Skipping proof {proof.ProofId}: No verifier for cluster {proof.ClusterId}");
                 return false;
             }
 
@@ -59,9 +59,9 @@ namespace dotnet_zk_verifier
 
             try
             {
-                bool isValid = prover.Verify(proofBytes);
+                bool isValid = verifier.Verify(proofBytes);
                 
-                Console.WriteLine($"   Proof {proof.ProofId,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")} ({prover.ZkType.ToString()})");
+                Console.WriteLine($"   Proof {proof.ProofId,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")} ({verifier.ZkType})");
                 return isValid;
             }
             catch (Exception ex)

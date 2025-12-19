@@ -1,21 +1,27 @@
-namespace dotnet_zk_verifier.Provers
+
+using dotnet_zk_verifier.src.Native;
+
+namespace dotnet_zk_verifier.src.Verifiers
 {
-    public class ZkVmProver
+    public class ZkVmVerifier
     {
         private readonly ZKType _zkType;
-        private readonly byte[] _vkBytes;
+        private readonly IntPtr _vkPtr;
+        private readonly nuint _vkLen;
 
-        public ZkVmProver(ZKType zkType, byte[] vkBytes)
+        public ZkVmVerifier(ZKType zkType, string vkBinary)
         {
             _zkType = zkType;
-            _vkBytes = vkBytes;
+            byte[] vkBytes = Convert.FromBase64String(vkBinary);
+            _vkLen = (nuint)vkBytes.Length;
+            _vkPtr = NativeZKVerifier.CopyToRust(vkBytes);
         }
 
         public ZKType ZkType => _zkType;
 
         public bool Verify(byte[] proof)
         {
-            return NativeMethods.Verify((int)_zkType, proof, _vkBytes);
+            return NativeZKVerifier.Verify((int)_zkType, proof, _vkPtr, _vkLen);
         }
 
         public static ZKType ParseZkType(string zkvmName)
@@ -26,8 +32,18 @@ namespace dotnet_zk_verifier.Provers
             if (name.Contains("pico")) return ZKType.Pico;
             if (name.Contains("airbender")) return ZKType.Airbender;
             if (name.Contains("sp1")) return ZKType.Sp1Hypercube;
-            
+
             return ZKType.Unknown;
         }
+    }
+
+    public enum ZKType
+    {
+        Zisk = 0,
+        OpenVM = 1,
+        Pico = 2,
+        Airbender = 3,
+        Sp1Hypercube = 4,
+        Unknown = -1
     }
 }

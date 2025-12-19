@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace dotnet_zk_verifier.Models
+namespace dotnet_zk_verifier.src.Models
 {
     public class ProofMetadata
     {
