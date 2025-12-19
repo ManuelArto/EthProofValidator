@@ -63,9 +63,11 @@ namespace dotnet_zk_verifier.src
 
             try
             {
+                var sw = System.Diagnostics.Stopwatch.StartNew();
                 bool isValid = verifier.Verify(proofBytes);
+                sw.Stop();
                 
-                Console.WriteLine($"   Proof {proof.ProofId,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")} ({verifier.ZkType})");
+                Console.WriteLine($"   Proof {proof.ProofId,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")} ({verifier.ZkType}, {sw.ElapsedMilliseconds} ms)");
                 return isValid;
             }
             catch (Exception ex)
