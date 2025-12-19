@@ -11,30 +11,43 @@ namespace dotnet_zk_verifier.src.Verifiers
         public async Task InitializeAsync()
         {
             Console.WriteLine("Fetching active verification keys...");
-            var keys = await _apiClient.GetActiveKeysAsync();
+            var clusters = await _apiClient.GetActiveKeysAsync();
 
-            if (keys == null)
+            if (clusters == null)
             {
                 Console.WriteLine("No keys found.");
                 return;
             }
 
-            foreach (var key in keys)
+            foreach (var cluster in clusters)
             {
-                if (string.IsNullOrEmpty(key.VkBinary)) continue;
-
-                ZKType zkType = ZkTypeMapper.Parse(key.ZkVm);
-                if (zkType != ZKType.Unknown)
-                {
-                    _verifiers[key.ClusterId] = new ZkProofVerifier(zkType, key.VkBinary);
-                    Console.WriteLine($"Initialized Verifier for Cluster: {key.ClusterId} ({zkType})");
-                }
+                RegisterVerifier(cluster.Id, cluster.ZkType, cluster.VkBinary);
             }
+        }
+
+        public async Task<ZkProofVerifier?> TryAddVerifierAsync(ProofMetadata proof)
+        {
+            var type = proof.Cluster.ZkvmVersion.ZkVm.Type;
+            var vkBinary = await _apiClient.GetVerificationKeyBinaryAsync(proof.ProofId);
+
+            this.RegisterVerifier(proof.ClusterId, type, vkBinary);
+            return this.GetVerifier(proof.ClusterId);
         }
 
         public ZkProofVerifier? GetVerifier(string clusterId)
         {
             return _verifiers.TryGetValue(clusterId, out var verifier) ? verifier : null;
+        }
+
+        private void RegisterVerifier(string cluster_id, string zkVm, string? vkBinary)
+        {
+            if (string.IsNullOrEmpty(vkBinary)) return;
+
+            ZKType zkType = ZkTypeMapper.Parse(zkVm);
+            if (zkType != ZKType.Unknown)
+            {
+                _verifiers[cluster_id] = new ZkProofVerifier(zkType, vkBinary);
+            }
         }
 
         public void Dispose()

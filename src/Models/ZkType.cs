@@ -18,7 +18,9 @@ namespace dotnet_zk_verifier.src.Models
             { "openvm", ZKType.OpenVM },
             { "pico", ZKType.Pico },
             { "airbender", ZKType.Airbender },
-            { "sp1", ZKType.Sp1Hypercube }
+            { "sp1", ZKType.Sp1Hypercube },
+            { "sp1-hypercube", ZKType.Sp1Hypercube },
+            { "sp1-turbo", ZKType.Sp1Hypercube },
         };
 
         public static ZKType Parse(string name)

@@ -10,13 +10,40 @@ namespace dotnet_zk_verifier.src.Models
         [JsonPropertyName("block_number")]
         public long BlockNumber { get; set; }
 
+        [JsonPropertyName("proof_status")]
+        public string Status { get; set; } = string.Empty;
+
         [JsonPropertyName("cluster_id")]
         public string ClusterId { get; set; } = string.Empty;
+
+        [JsonPropertyName("cluster_version")]
+        public Cluster Cluster { get; set; } = new();
     }
 
     public class ProofResponse
     {
         [JsonPropertyName("rows")]
-        public List<ProofMetadata> Rows { get; set; } = new();
+        public List<ProofMetadata> Rows { get; set; } = [];
     }
+
+    public class Cluster
+    {
+        [JsonPropertyName("cluster_id")]
+        public string ClusterId { get; set; } = string.Empty;
+
+        [JsonPropertyName("zkvm_version")]
+        public ZkvmVersion ZkvmVersion { get; set; } = new();
+    }
+
+    public class ZkvmVersion {
+        [JsonPropertyName("zkvm")]
+        public ZkVm ZkVm { get; set; } = new();
+    }
+
+    public class ZkVm
+    {
+        [JsonPropertyName("slug")]
+        public string Type { get; set; } = string.Empty;
+    }
+
 }

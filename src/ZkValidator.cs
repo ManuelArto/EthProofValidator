@@ -34,15 +34,11 @@ namespace dotnet_zk_verifier.src
             }
 
             
-            var tasks = proofResponse.Rows.Select(async proof =>
-            {
-                var verifier = _verifierRegistry.GetVerifier(proof.ClusterId);
-                return await ProcessProofAsync(proof, verifier);
-            });
+            var tasks = proofResponse.Rows.Select(ProcessProofAsync);
             var results = await Task.WhenAll(tasks);
 
-            int validCount = results.Count(r => r);
-            int totalCount = results.Length;
+            int validCount = results.Count(r => r == 1);
+            int totalCount = results.Count(r => r != -1);
 
             Console.WriteLine("   -----------------------------");
             Console.WriteLine((double)validCount / totalCount >= 0.5
@@ -50,16 +46,24 @@ namespace dotnet_zk_verifier.src
                 : $"❌ BLOCK #{blockId} REJECTED ({validCount}/{totalCount})");
         }
 
-        private async Task<bool> ProcessProofAsync(ProofMetadata proof, ZkProofVerifier? verifier)
+        private async Task<int> ProcessProofAsync(ProofMetadata proof)
         {
+            if (proof.Status != "proved")
+            {
+                return -1;
+            }
+
+            var verifier = _verifierRegistry.GetVerifier(proof.ClusterId);
+            // verifier ??= await _verifierRegistry.TryAddVerifierAsync(proof);
             if (verifier == null)
             {
-                Console.WriteLine($"   ⚠️  Skipping proof {proof.ProofId}: No verifier for cluster {proof.ClusterId}");
-                return false;
+                var zkType = proof.Cluster.ZkvmVersion.ZkVm.Type;
+                Console.WriteLine($"   ⚠️  Skipping proof {proof.ProofId}: No verifier for cluster {zkType}_{proof.ClusterId}");
+                return -1;
             }
 
             var proofBytes = await _apiClient.DownloadProofAsync(proof.ProofId);
-            if (proofBytes == null) return false;
+            if (proofBytes == null) return -1;
 
             try
             {
@@ -68,12 +72,12 @@ namespace dotnet_zk_verifier.src
                 sw.Stop();
                 
                 Console.WriteLine($"   Proof {proof.ProofId,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")} ({verifier.ZkType}, {sw.ElapsedMilliseconds} ms)");
-                return isValid;
+                return isValid ? 1 : 0;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"   ❌ Error processing proof {proof.ProofId}: {ex.Message}");
-                return false;
+                return 0;
             }
         }
     }

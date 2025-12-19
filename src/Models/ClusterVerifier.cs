@@ -2,13 +2,13 @@ using System.Text.Json.Serialization;
 
 namespace dotnet_zk_verifier.src.Models
 {
-    public class VerificationKey
+    public class ClusterVerifier
     {
         [JsonPropertyName("cluster_id")]
-        public string ClusterId { get; set; } = string.Empty;
+        public string Id { get; set; } = string.Empty;
 
         [JsonPropertyName("zkvm")]
-        public string ZkVm { get; set; } = string.Empty;
+        public string ZkType { get; set; } = string.Empty;
 
         [JsonPropertyName("vk_path")]
         public string VkPath { get; set; } = string.Empty;

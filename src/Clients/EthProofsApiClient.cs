@@ -18,15 +18,29 @@ namespace dotnet_zk_verifier.src.Clients
             _httpClient = new HttpClient(handler) { BaseAddress = new Uri(BaseUrl) };
         }
 
-        public async Task<List<VerificationKey>?> GetActiveKeysAsync()
+        public async Task<List<ClusterVerifier>?> GetActiveKeysAsync()
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<List<VerificationKey>>("/api/v0/verification-keys/active");
+                return await _httpClient.GetFromJsonAsync<List<ClusterVerifier>>("/api/v0/verification-keys/active");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[API Error] Failed to fetch active keys: {ex.Message}");
+                Console.WriteLine($"[API Error] Failed to fetch active clusters: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<string?> GetVerificationKeyBinaryAsync(long proofId)
+        {
+            try
+            {
+                var vkBytes = await _httpClient.GetByteArrayAsync($"/api/verification-keys/download/{proofId}");
+                return Convert.ToBase64String(vkBytes);
+            }
+            catch (Exception ex)
+            {
+                // Console.WriteLine($"[API Error] Failed to download verification key for {proofId}: {ex.Message}");
                 return null;
             }
         }
@@ -35,7 +49,7 @@ namespace dotnet_zk_verifier.src.Clients
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<ProofResponse>($"/api/blocks/{blockId}/proofs?page_index=0&page_size=20&filter_type=multi");
+                return await _httpClient.GetFromJsonAsync<ProofResponse>($"/api/blocks/{blockId}/proofs?page_size=20");
             }
             catch (Exception ex)
             {
