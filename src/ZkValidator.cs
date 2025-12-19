@@ -5,12 +5,12 @@ using dotnet_zk_verifier.src.Verifiers;
 
 namespace dotnet_zk_verifier.src
 {
-    public class ZkVerifier
+    public class ZkValidator
     {
         private readonly EthProofsApiClient _apiClient;
         private readonly VerifierRegistry _verifierRegistry;
 
-        public ZkVerifier()
+        public ZkValidator()
         {
             _apiClient = new EthProofsApiClient();
             _verifierRegistry = new VerifierRegistry(_apiClient);
@@ -50,7 +50,7 @@ namespace dotnet_zk_verifier.src
                 : $"❌ BLOCK #{blockId} REJECTED ({validCount}/{totalCount})");
         }
 
-        private async Task<bool> ProcessProofAsync(ProofMetadata proof, ZkVmVerifier? verifier)
+        private async Task<bool> ProcessProofAsync(ProofMetadata proof, ZkProofVerifier? verifier)
         {
             if (verifier == null)
             {

@@ -6,7 +6,7 @@
         {
             Console.WriteLine("Starting Multi-zkVM Verifier...");
 
-            var verifier = new ZkVerifier();
+            var verifier = new ZkValidator();
             await verifier.InitializeAsync();
 
             // var blockIds = new List<long> { 24040929, 24040930 };

@@ -5,7 +5,7 @@ namespace dotnet_zk_verifier.src.Verifiers
     public class VerifierRegistry(EthProofsApiClient apiClient)
     {
         private readonly EthProofsApiClient _apiClient = apiClient;
-        private readonly Dictionary<string, ZkVmVerifier> _verifiers = [];
+        private readonly Dictionary<string, ZkProofVerifier> _verifiers = [];
 
         public async Task InitializeAsync()
         {
@@ -22,16 +22,16 @@ namespace dotnet_zk_verifier.src.Verifiers
             {
                 if (string.IsNullOrEmpty(key.VkBinary)) continue;
 
-                ZKType zkType = ZkVmVerifier.ParseZkType(key.ZkVm);
+                ZKType zkType = ZkProofVerifier.ParseZkType(key.ZkVm);
                 if (zkType != ZKType.Unknown)
                 {
-                    _verifiers[key.ClusterId] = new ZkVmVerifier(zkType, key.VkBinary);
+                    _verifiers[key.ClusterId] = new ZkProofVerifier(zkType, key.VkBinary);
                     Console.WriteLine($"Initialized Verifier for Cluster: {key.ClusterId} ({zkType})");
                 }
             }
         }
 
-        public ZkVmVerifier? GetVerifier(string clusterId)
+        public ZkProofVerifier? GetVerifier(string clusterId)
         {
             return _verifiers.TryGetValue(clusterId, out var verifier) ? verifier : null;
         }

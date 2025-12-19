@@ -3,13 +3,13 @@ using dotnet_zk_verifier.src.Native;
 
 namespace dotnet_zk_verifier.src.Verifiers
 {
-    public class ZkVmVerifier
+    public class ZkProofVerifier
     {
         private readonly ZKType _zkType;
         private readonly IntPtr _vkPtr;
         private readonly nuint _vkLen;
 
-        public ZkVmVerifier(ZKType zkType, string vkBinary)
+        public ZkProofVerifier(ZKType zkType, string vkBinary)
         {
             _zkType = zkType;
             byte[] vkBytes = Convert.FromBase64String(vkBinary);
