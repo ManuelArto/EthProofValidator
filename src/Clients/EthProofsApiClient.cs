@@ -40,7 +40,7 @@ namespace dotnet_zk_verifier.src.Clients
             }
             catch (Exception ex)
             {
-                // Console.WriteLine($"[API Error] Failed to download verification key for {proofId}: {ex.Message}");
+                Console.WriteLine($"[API Error] Failed to download verification key for {proofId}: {ex.Message}");
                 return null;
             }
         }

@@ -11,4 +11,14 @@
   <ItemGroup>
   </ItemGroup>
 
+  <Target Name="BuildRustDependency" BeforeTargets="Build">
+    <Exec Command="cargo build --release" WorkingDirectory="multi-zk-verifier" />
+    <ItemGroup>
+      <NativeLibs Include="multi-zk-verifier/target/release/libmulti_zk_verifier.so" Condition="$([MSBuild]::IsOSPlatform('Linux'))" />
+      <NativeLibs Include="multi-zk-verifier/target/release/multi_zk_verifier.dll" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
+      <NativeLibs Include="multi-zk-verifier/target/release/libmulti_zk_verifier.dylib" Condition="$([MSBuild]::IsOSPlatform('OSX'))" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NativeLibs)" DestinationFolder="$(OutputPath)" />
+  </Target>
+
 </Project>

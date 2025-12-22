@@ -4,7 +4,7 @@ namespace dotnet_zk_verifier.src.Native
 {
     internal static class NativeZKVerifier
     {
-        const string LibName = "./multi-zk-verifier/target/release/libmulti_zk_verifier.so";
+        const string LibName = "multi_zk_verifier";
 
         // Standard P/Invoke: .NET automatically handles the translation of 'byte[]' to a pointer
         [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]
