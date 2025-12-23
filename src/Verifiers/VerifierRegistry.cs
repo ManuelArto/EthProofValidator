@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using EthProofValidator.src.Clients;
 using EthProofValidator.src.Models;
 
@@ -6,11 +7,10 @@ namespace EthProofValidator.src.Verifiers
     public class VerifierRegistry(EthProofsApiClient apiClient): IDisposable
     {
         private readonly EthProofsApiClient _apiClient = apiClient;
-        private readonly Dictionary<string, ZkProofVerifier> _verifiers = [];
+        private readonly ConcurrentDictionary<string, ZkProofVerifier> _verifiers = new();
 
         public async Task InitializeAsync()
         {
-            Console.WriteLine("Fetching active verification keys...");
             var clusters = await _apiClient.GetActiveKeysAsync();
 
             if (clusters == null)
@@ -23,6 +23,13 @@ namespace EthProofValidator.src.Verifiers
             {
                 RegisterVerifier(cluster.Id, cluster.ZkType, cluster.VkBinary);
             }
+            Console.WriteLine($"✅ Loaded {_verifiers.Count} verifiers.");
+        }
+
+        public ZkProofVerifier? GetVerifier(string clusterId)
+        {
+            _verifiers.TryGetValue(clusterId, out var verifier);
+            return verifier;
         }
 
         public async Task<ZkProofVerifier?> TryAddVerifierAsync(ProofMetadata proof)
@@ -30,24 +37,24 @@ namespace EthProofValidator.src.Verifiers
             var type = proof.Cluster.ZkvmVersion.ZkVm.Type;
             var vkBinary = await _apiClient.GetVerificationKeyBinaryAsync(proof.ProofId);
 
-            this.RegisterVerifier(proof.ClusterId, type, vkBinary);
-            return this.GetVerifier(proof.ClusterId);
+            RegisterVerifier(proof.ClusterId, type, vkBinary);
+            return GetVerifier(proof.ClusterId);
         }
 
-        public ZkProofVerifier? GetVerifier(string clusterId)
-        {
-            return _verifiers.TryGetValue(clusterId, out var verifier) ? verifier : null;
-        }
-
-        private void RegisterVerifier(string cluster_id, string zkVm, string? vkBinary)
+        private void RegisterVerifier(string clusterId, string zkVm, string? vkBinary)
         {
             if (string.IsNullOrEmpty(vkBinary)) return;
 
             ZKType zkType = ZkTypeMapper.Parse(zkVm);
-            if (zkType != ZKType.Unknown)
-            {
-                _verifiers[cluster_id] = new ZkProofVerifier(zkType, vkBinary);
-            }
+            if (zkType == ZKType.Unknown) return;
+
+            _verifiers.AddOrUpdate(clusterId,
+                _ => new ZkProofVerifier(zkType, vkBinary),
+                (_, oldVerifier) =>
+                {
+                    oldVerifier.Dispose(); 
+                    return new ZkProofVerifier(zkType, vkBinary);
+                });
         }
 
         public void Dispose()

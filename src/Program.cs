@@ -4,25 +4,22 @@
     {
         static async Task Main()
         {
-            Console.WriteLine("Starting Multi-zkVM Verifier...");
+            var validator = new BlockValidator();
+            await validator.InitializeAsync();
 
-            var verifier = new ZkValidator();
-            await verifier.InitializeAsync();
-
-
-            // Include Single-GPU (1:100) test blocks
+            // The following include Single-GPU (1:100) zk proofs
             // var blockIds = new List<long> { 24046700, 24046800, 24046900, 24047000, 24047100, 24047200, 24047300, 24047400, 24047500, 24047600, 24047700 };
 
-            var latestBlockId = 24068932;
-            int N = 25;
-            var blockIds = Enumerable.Range((int)(latestBlockId - N), N+1).Select(i => (long)i).ToList();
+            const long LatestBlockId = 24046700; // 24076108
+            const int BlockCount = 25;
+            var blockIds = Enumerable.Range((int)(LatestBlockId - BlockCount), BlockCount+1).Select(i => i).ToList();
 
             foreach (var blockId in blockIds)
             {
                 var sw = System.Diagnostics.Stopwatch.StartNew();
-                await verifier.ValidateBlockAsync(blockId);
+                await validator.ValidateBlockAsync(blockId);
                 sw.Stop();
-                Console.WriteLine($"⏱️  VALIDATED in {sw.ElapsedMilliseconds} ms");
+                Console.WriteLine($"⏱️  Total Time: {sw.ElapsedMilliseconds} ms");
             }
         }
     }

@@ -5,40 +5,39 @@ using EthProofValidator.src.Verifiers;
 
 namespace EthProofValidator.src
 {
-    public class ZkValidator
+    public class BlockValidator
     {
         private readonly EthProofsApiClient _apiClient;
-        private readonly VerifierRegistry _verifierRegistry;
+        private readonly VerifierRegistry _registry;
 
-        public ZkValidator()
+        public BlockValidator()
         {
             _apiClient = new EthProofsApiClient();
-            _verifierRegistry = new VerifierRegistry(_apiClient);
+            _registry = new VerifierRegistry(_apiClient);
         }
 
-        public async Task InitializeAsync()
-        {
-            await _verifierRegistry.InitializeAsync();
-        }
+        public async Task InitializeAsync() => await _registry.InitializeAsync();
 
         public async Task ValidateBlockAsync(long blockId)
         {
-            Console.WriteLine($"\nProcessing Block #{blockId}...");
+            Console.WriteLine($"\n📦 Processing Block #{blockId}...");
             
-            var proofResponse = await _apiClient.GetProofsForBlockAsync(blockId);
-            
-            if (proofResponse == null || proofResponse.Rows.Count == 0)
+            var proofs = await _apiClient.GetProofsForBlockAsync(blockId);
+            if (proofs == null || proofs.Count == 0)
             {
-                Console.WriteLine("No proofs found for this block.");
+                Console.WriteLine("No proofs found.");
                 return;
             }
 
-            
-            var tasks = proofResponse.Rows.Select(ProcessProofAsync);
+            var tasks = proofs.Select(async proof =>
+            {
+                var verifier = _registry.GetVerifier(proof.ClusterId) ?? await _registry.TryAddVerifierAsync(proof);
+                return await ProcessProofAsync(proof, verifier);
+            });
             var results = await Task.WhenAll(tasks);
 
             int validCount = results.Count(r => r == 1);
-            int totalCount = results.Count(r => r != -1);
+            int totalCount = results.Count(r => r != -1); // Exclude skipped proofs
 
             Console.WriteLine("   -----------------------------");
             Console.WriteLine((double)validCount / totalCount >= 0.5
@@ -46,19 +45,12 @@ namespace EthProofValidator.src
                 : $"❌ BLOCK #{blockId} REJECTED ({validCount}/{totalCount})");
         }
 
-        private async Task<int> ProcessProofAsync(ProofMetadata proof)
+        private async Task<int> ProcessProofAsync(ProofMetadata proof, ZkProofVerifier? verifier)
         {
-            if (proof.Status != "proved")
-            {
-                return -1;
-            }
-
-            var verifier = _verifierRegistry.GetVerifier(proof.ClusterId);
-            // verifier ??= await _verifierRegistry.TryAddVerifierAsync(proof);
             if (verifier == null)
             {
                 var zkType = proof.Cluster.ZkvmVersion.ZkVm.Type;
-                Console.WriteLine($"   ⚠️  Skipping proof {proof.ProofId}: No verifier for cluster {zkType}_{proof.ClusterId}");
+                Console.WriteLine($"   ⚠️  Skipping proof {proof.ProofId}: No verifier for cluster ({zkType}) {proof.ClusterId}");
                 return -1;
             }
 

@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace EthProofValidator.src.Native
 {
-    internal static class NativeZKVerifier
+    internal static class NativeMethods
     {
         const string LibName = "native_zk_verifier";
 

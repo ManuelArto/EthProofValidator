@@ -38,18 +38,18 @@ namespace EthProofValidator.src.Clients
                 var vkBytes = await _httpClient.GetByteArrayAsync($"/api/verification-keys/download/{proofId}");
                 return Convert.ToBase64String(vkBytes);
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"[API Error] Failed to download verification key for {proofId}: {ex.Message}");
                 return null;
             }
         }
 
-        public async Task<ProofResponse?> GetProofsForBlockAsync(long blockId)
+        public async Task<List<ProofMetadata>?> GetProofsForBlockAsync(long blockId)
         {
             try
             {
-                return await _httpClient.GetFromJsonAsync<ProofResponse>($"/api/blocks/{blockId}/proofs?page_size=20");
+                var results = await _httpClient.GetFromJsonAsync<ProofResponse>($"/api/blocks/{blockId}/proofs?page_size=20");
+                return results?.Rows.Where(p => p.Status == "proved").ToList();
             }
             catch (Exception ex)
             {

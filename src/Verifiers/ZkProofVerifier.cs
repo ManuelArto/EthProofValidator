@@ -9,6 +9,7 @@ namespace EthProofValidator.src.Verifiers
         private readonly ZKType _zkType;
         private IntPtr _vkPtr;
         private nuint _vkLen;
+
         private bool _disposed;
 
         public ZKType ZkType => _zkType;
@@ -23,8 +24,13 @@ namespace EthProofValidator.src.Verifiers
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
 
-            var isValid = NativeZKVerifier.verify((int)_zkType, proof, (nuint)proof.Length, _vkPtr, _vkLen);
-            return isValid == 1;
+            try {
+                var result = NativeMethods.verify((int)_zkType, proof, (nuint)proof.Length, _vkPtr, _vkLen);
+                return result == 1;
+            } catch
+            {
+                return false;
+            }
         }
 
         private void AllocateVkMemory(string vkBinary)
@@ -33,28 +39,35 @@ namespace EthProofValidator.src.Verifiers
             _vkLen = (nuint)vkBytes.Length;
             // Allocate unmanaged memory and copy the verification key bytes
             _vkPtr = Marshal.AllocHGlobal(vkBytes.Length);
-            Marshal.Copy(vkBytes, 0, _vkPtr, vkBytes.Length);
+            try
+            {
+                Marshal.Copy(vkBytes, 0, _vkPtr, vkBytes.Length);
+            }
+            catch
+            {
+                Marshal.FreeHGlobal(_vkPtr);
+                throw;
+            }
         }
 
         // --- Disposal Pattern ---
         public void Dispose()
         {
-            Dispose(true);
+            if (_disposed) return;
+            ReleaseVerificationKey();
+            _disposed = true;
             GC.SuppressFinalize(this);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void ReleaseVerificationKey()
         {
-            if (_disposed) return;
-
             if (_vkPtr != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(_vkPtr);
                 _vkPtr = IntPtr.Zero;
             }
-            _disposed = true;
         }
 
-        ~ZkProofVerifier() => Dispose(false);
+        ~ZkProofVerifier() => ReleaseVerificationKey();
     }
 }
