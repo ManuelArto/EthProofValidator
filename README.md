@@ -8,6 +8,10 @@ This application acts as a wrapper for various native ZK verifiers implemented i
 
 The project demonstrates how to bridge .NET and high-performance Rust-based ZK verifiers to interact with the growing ecosystem of Ethereum zkVMs.
 
+## Important Disclaimer
+
+This project is strictly connected to [Ethproofs.org](https://ethproofs.org/). Due to the dynamic nature of the Ethereum proof ecosystem, `ethproofs.org` frequently updates its provers and verification keys. Therefore, this project requires active maintenance to ensure compatibility and correct functionality with the latest changes from `ethproofs.org`.
+
 ## Project Structure
 
 The repository is composed of two main parts:
@@ -24,7 +28,13 @@ The repository is composed of two main parts:
 
 ### Build Steps
 
-1.  **Build the .NET Application (includes Rust Verifiers)**:
+1.  **Set Rust Toolchain to Nightly (Required for native-zk-verifier):**
+    The `native-zk-verifier` project requires the nightly release channel. Stable or beta compilers will not comply
+    ```bash
+    rustup override set nightly
+    ```
+
+2.  **Build the .NET Application (includes Rust Verifiers)**:
     Navigate to the root directory of the .NET project and build the C# application. This process will automatically build the Rust verifier library and copy the necessary native libraries into the output directory.
 
     ```bash
@@ -40,4 +50,11 @@ dotnet run
 ```
 
 This will execute the `Program.cs` which should then utilize the compiled Rust verifiers.
+
+## Demo Behavior
+
+The current implementation in `src/Program.cs` is configured to run a demonstration that validates a sequence of Ethereum blocks.
+It defines a `LatestBlockId` (e.g., `24076108`) and validates the preceding `BlockCount` blocks (currently set to 25).
+The application sequentially attempts to fetch and validate the proofs for each of these blocks, printing the elapsed time for each validation to the console.
+
 
