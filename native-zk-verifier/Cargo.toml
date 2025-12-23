@@ -1,5 +1,5 @@
 [package]
-name = "multi-zk-verifier"
+name = "native-zk-verifier"
 edition = "2021"
 
 [lib]
