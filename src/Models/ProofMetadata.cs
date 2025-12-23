@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace dotnet_zk_verifier.src.Models
+namespace EthProofValidator.src.Models
 {
     public class ProofMetadata
     {

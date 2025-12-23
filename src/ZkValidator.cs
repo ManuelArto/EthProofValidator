@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
-using dotnet_zk_verifier.src.Clients;
-using dotnet_zk_verifier.src.Models;
-using dotnet_zk_verifier.src.Verifiers;
+using EthProofValidator.src.Clients;
+using EthProofValidator.src.Models;
+using EthProofValidator.src.Verifiers;
 
-namespace dotnet_zk_verifier.src
+namespace EthProofValidator.src
 {
     public class ZkValidator
     {

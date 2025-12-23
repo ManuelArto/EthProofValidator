@@ -1,7 +1,7 @@
-using dotnet_zk_verifier.src.Clients;
-using dotnet_zk_verifier.src.Models;
+using EthProofValidator.src.Clients;
+using EthProofValidator.src.Models;
 
-namespace dotnet_zk_verifier.src.Verifiers
+namespace EthProofValidator.src.Verifiers
 {
     public class VerifierRegistry(EthProofsApiClient apiClient): IDisposable
     {

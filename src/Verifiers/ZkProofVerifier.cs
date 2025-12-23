@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
-using dotnet_zk_verifier.src.Models;
-using dotnet_zk_verifier.src.Native;
+using EthProofValidator.src.Models;
+using EthProofValidator.src.Native;
 
-namespace dotnet_zk_verifier.src.Verifiers
+namespace EthProofValidator.src.Verifiers
 {
     public class ZkProofVerifier : IDisposable
     {

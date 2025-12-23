@@ -1,10 +1,10 @@
 using System.Runtime.InteropServices;
 
-namespace dotnet_zk_verifier.src.Native
+namespace EthProofValidator.src.Native
 {
     internal static class NativeZKVerifier
     {
-        const string LibName = "multi_zk_verifier";
+        const string LibName = "native_zk_verifier";
 
         // Standard P/Invoke: .NET automatically handles the translation of 'byte[]' to a pointer
         [DllImport(LibName, CallingConvention = CallingConvention.Cdecl)]

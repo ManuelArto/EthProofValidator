@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
-using dotnet_zk_verifier.src.Models;
+using EthProofValidator.src.Models;
 
-namespace dotnet_zk_verifier.src.Clients
+namespace EthProofValidator.src.Clients
 {
     public class EthProofsApiClient
     {

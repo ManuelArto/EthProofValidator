@@ -1,13 +1,19 @@
-# .NET ZK Verifier
+# .NET ETH Proofs ZK Verifier
 
-This project provides a .NET application that acts as a wrapper for various Zero-Knowledge (ZK) verifiers implemented in Rust. It allows .NET applications to interact with and verify ZK proofs using different underlying ZK proof systems.
+This project serves as a Proof of Concept for a .NET application designed to validate **Ethereum block proofs** aggregated by [Ethproofs.org](https://ethproofs.org/).
+
+**Ethproofs.org** is a block proof explorer for Ethereum that aggregates data from various zkVM (Zero-Knowledge Virtual Machine) teams. It provides a comprehensive overview of proven blocks and allows users to explore proof metadata.
+
+This application acts as a wrapper for various native ZK verifiers implemented in Rust, enabling .NET applications to verify these cryptographic proofs. It supports multiple proof systems (such as OpenVM, Pico, Zisk, etc.) to validate the execution of Ethereum blocks, contributing to the goal of enabling full ZK light clients and validating Ethereum state with a single proof.
+
+The project demonstrates how to bridge .NET and high-performance Rust-based ZK verifiers to interact with the growing ecosystem of Ethereum zkVMs.
 
 ## Project Structure
 
 The repository is composed of two main parts:
 
--   **`dotnet-zk-verifier/`**: The main C# .NET project. This contains the application logic, models, and interfaces for interacting with the ZK verifiers.
--   **`multi-zk-verifier/`**: A Rust project that implements the actual ZK verifier logic for different proof systems (e.g., Airbender, OpenVM, Pico, SP1 Hypercube, Zisk). The .NET application communicates with this Rust library.
+-   **`src/`**: The main C# .NET project (EthProofValidator). This contains the application logic, models, and interfaces for interacting with the ZK verifiers.
+-   **`native-zk-verifier/`**: A Rust project that implements the actual ZK verifier logic for different proof systems (e.g., Airbender, OpenVM, Pico, SP1 Hypercube, Zisk). The .NET application communicates with this Rust library.
 
 ## Building and Running
 

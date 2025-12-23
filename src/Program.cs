@@ -1,4 +1,4 @@
-﻿namespace dotnet_zk_verifier.src
+﻿namespace EthProofValidator.src
 {
     class Program
     {
