@@ -30,13 +30,7 @@ The repository is composed of two main parts:
 
 ### Build Steps
 
-1.  **Set Rust Toolchain to Nightly (Required for native-zk-verifier):**
-    The `native-zk-verifier` project requires the nightly release channel. Stable or beta compilers will not comply
-    ```bash
-    rustup override set nightly
-    ```
-
-2.  **Build the .NET Application (includes Rust Verifiers)**:
+1.  **Build the .NET Application (includes Rust Verifiers)**:
     Navigate to the root directory of the .NET project and build the C# application. This process will automatically build the Rust verifier library and copy the necessary native libraries into the output directory.
 
     ```bash
