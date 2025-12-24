@@ -20,7 +20,7 @@ namespace EthProofValidator.src
 
         public async Task ValidateBlockAsync(long blockId)
         {
-            Console.WriteLine($"\n📦 Processing Block #{blockId}...");
+            Console.WriteLine($"\n📦 Processing Block #{blockId}");
             
             var proofs = await _apiClient.GetProofsForBlockAsync(blockId);
             if (proofs == null || proofs.Count == 0)
