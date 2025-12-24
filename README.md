@@ -17,7 +17,7 @@ This project is strictly connected to [Ethproofs.org](https://ethproofs.org/). D
 The repository is composed of two main parts:
 
 -   **`src/`**: The main C# .NET project (EthProofValidator). This contains the application logic, models, and interfaces for interacting with the ZK verifiers.
--   **`native-zk-verifier/`**: A Rust project that implements the actual ZK verifier logic for different proof systems (e.g., Airbender, OpenVM, Pico, SP1 Hypercube, Zisk). The .NET application communicates with this Rust library.
+-   **`native-zk-verifier/`**: A Rust project that implements the actual ZK verifier logic for different proof systems (e.g., Zisk, OpenVM, Pico, SP1 Hypercube). The .NET application communicates with this Rust library.
 
 ## Building and Running
 

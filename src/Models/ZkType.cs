@@ -5,8 +5,7 @@ namespace EthProofValidator.src.Models
         Zisk = 0,
         OpenVM = 1,
         Pico = 2,
-        Airbender = 3,
-        Sp1Hypercube = 4,
+        Sp1Hypercube = 3,
         Unknown = -1
     }
 
@@ -17,7 +16,6 @@ namespace EthProofValidator.src.Models
             { "zisk", ZKType.Zisk },
             { "openvm", ZKType.OpenVM },
             { "pico", ZKType.Pico },
-            { "airbender", ZKType.Airbender },
             { "sp1", ZKType.Sp1Hypercube },
             { "sp1-hypercube", ZKType.Sp1Hypercube },
             { "sp1-turbo", ZKType.Sp1Hypercube },

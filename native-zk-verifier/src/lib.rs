@@ -1,7 +1,7 @@
 use std::slice;
 
 mod verifiers;
-use verifiers::{ Verifier, VerifierType, airbender::AirbenderVerifier, openvm::OpenVmVerifier, pico::PicoVerifier, sp1_hypercube::Sp1HypercubeVerifier, zisk::ZiskVerifier };
+use verifiers::{ Verifier, VerifierType, openvm::OpenVmVerifier, pico::PicoVerifier, sp1_hypercube::Sp1HypercubeVerifier, zisk::ZiskVerifier };
 
 #[no_mangle]
 pub extern "C" fn verify(
@@ -29,7 +29,6 @@ pub extern "C" fn verify(
         VerifierType::Zisk => ZiskVerifier::verify(proof, vk),
         VerifierType::OpenVm => OpenVmVerifier::verify(proof, vk),
         VerifierType::Pico => PicoVerifier::verify(proof, vk),
-        VerifierType::Airbender => AirbenderVerifier::verify(proof, vk),
         VerifierType::Sp1Hypercube => Sp1HypercubeVerifier::verify(proof, vk),
     };
 
