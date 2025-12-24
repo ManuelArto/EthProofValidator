@@ -15,9 +15,6 @@ WORKDIR /src
 
 COPY . .
 
-# Set Rust toolchain to nightly for native-zk-verifier
-RUN rustup override set nightly
-
 # This will automatically trigger the 'cargo build' via the .csproj target
 RUN dotnet publish EthProofValidator.csproj -c Release -o /app/publish
 
