@@ -8,6 +8,8 @@ This application acts as a wrapper for various native ZK verifiers implemented i
 
 The project demonstrates how to bridge .NET and high-performance Rust-based ZK verifiers to interact with the growing ecosystem of Ethereum zkVMs.
 
+This project specifically focuses on multi-GPU ZK verifiers, as they are currently the only ones that provide Real-Time Proving (RTP).
+
 ## Important Disclaimer
 
 This project is strictly connected to [Ethproofs.org](https://ethproofs.org/). Due to the dynamic nature of the Ethereum proof ecosystem, `ethproofs.org` frequently updates its provers and verification keys. Therefore, this project requires active maintenance to ensure compatibility and correct functionality with the latest changes from `ethproofs.org`.
