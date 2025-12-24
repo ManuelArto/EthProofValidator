@@ -56,7 +56,7 @@ This will execute the `Program.cs` which should then utilize the compiled Rust v
 ## Demo Behavior
 
 The current implementation in `src/Program.cs` is configured to run a demonstration that validates a sequence of Ethereum blocks.
-It defines a `LatestBlockId` (e.g., `24076108`) and validates the preceding `BlockCount` blocks (currently set to 25).
+It defines a `LatestBlockId` validates the preceding `BlockCount` blocks (currently set to 25).
 The application sequentially attempts to fetch and validate the proofs for each of these blocks, printing the elapsed time for each validation to the console.
 
 
