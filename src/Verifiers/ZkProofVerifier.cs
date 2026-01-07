@@ -20,16 +20,16 @@ namespace EthProofValidator.src.Verifiers
             AllocateVkMemory(vkBinary);
         }
 
-        public bool Verify(byte[] proof)
+        public int Verify(byte[] proof)
         {
             ObjectDisposedException.ThrowIf(_disposed, this);
 
             try {
                 var result = NativeMethods.verify((int)_zkType, proof, (nuint)proof.Length, _vkPtr, _vkLen);
-                return result == 1;
+                return result;
             } catch
             {
-                return false;
+                return -1;
             }
         }
 

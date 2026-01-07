@@ -50,27 +50,25 @@ namespace EthProofValidator.src
             if (verifier == null)
             {
                 var zkType = proof.Cluster.ZkvmVersion.ZkVm.Type;
-                Console.WriteLine($"   ⚠️  Skipping proof {proof.ProofId}: No verifier for cluster ({zkType}) {proof.ClusterId}");
+                Console.WriteLine($"   Proof {proof.ProofId} - {zkType, -15} : ⚠️  Skipped (No verifier for cluster {proof.ClusterId})");
                 return -1;
             }
 
             var proofBytes = await _apiClient.DownloadProofAsync(proof.ProofId);
             if (proofBytes == null) return -1;
 
-            try
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            int result = verifier.Verify(proofBytes);
+            sw.Stop();
+            
+            string status = result switch
             {
-                var sw = System.Diagnostics.Stopwatch.StartNew();
-                bool isValid = verifier.Verify(proofBytes);
-                sw.Stop();
-                
-                Console.WriteLine($"   Proof {proof.ProofId,-10} : {(isValid ? "✅ Valid" : "❌ Invalid")} ({verifier.ZkType}, {sw.ElapsedMilliseconds} ms)");
-                return isValid ? 1 : 0;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"   ❌ Error processing proof {proof.ProofId}: {ex.Message}");
-                return 0;
-            }
+                1 => "✅ Valid",
+                0 => "❌ Invalid",
+                -1 => "❌ Failed",
+            };
+            Console.WriteLine($"   Proof {proof.ProofId} - {verifier.ZkType, -15} : {status} ({sw.ElapsedMilliseconds} ms)");
+            return result;
         }
     }
 }
