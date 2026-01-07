@@ -24,7 +24,7 @@ namespace EthProofValidator.src.Clients
             {
                 return await _httpClient.GetFromJsonAsync<List<ClusterVerifier>>("/api/v0/verification-keys/active");
             }
-            catch (Exception ex)
+            catch (HttpRequestException ex)
             {
                 Console.WriteLine($"[API Error] Failed to fetch active clusters: {ex.Message}");
                 return null;
@@ -38,7 +38,7 @@ namespace EthProofValidator.src.Clients
                 var vkBytes = await _httpClient.GetByteArrayAsync($"/api/verification-keys/download/{proofId}");
                 return Convert.ToBase64String(vkBytes);
             }
-            catch
+            catch (HttpRequestException _)
             {
                 return null;
             }
@@ -51,7 +51,7 @@ namespace EthProofValidator.src.Clients
                 var results = await _httpClient.GetFromJsonAsync<ProofResponse>($"/api/blocks/{blockId}/proofs?page_size=20");
                 return results?.Rows.Where(p => p.Status == "proved").ToList();
             }
-            catch (Exception ex)
+            catch (HttpRequestException ex)
             {
                 Console.WriteLine($"[API Error] Failed to fetch proofs for block {blockId}: {ex.Message}");
                 return null;
@@ -64,9 +64,8 @@ namespace EthProofValidator.src.Clients
             {
                 return await _httpClient.GetByteArrayAsync($"/api/proofs/download/{proofId}");
             }
-            catch (Exception ex)
+            catch (HttpRequestException ex)
             {
-                Console.WriteLine($"[API Error] Failed to download proof {proofId}: {ex.Message}");
                 return null;
             }
         }
