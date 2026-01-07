@@ -38,7 +38,7 @@ namespace EthProofValidator.src.Clients
                 var vkBytes = await _httpClient.GetByteArrayAsync($"/api/verification-keys/download/{proofId}");
                 return Convert.ToBase64String(vkBytes);
             }
-            catch (HttpRequestException _)
+            catch (HttpRequestException)
             {
                 return null;
             }
@@ -64,7 +64,7 @@ namespace EthProofValidator.src.Clients
             {
                 return await _httpClient.GetByteArrayAsync($"/api/proofs/download/{proofId}");
             }
-            catch (HttpRequestException ex)
+            catch (HttpRequestException)
             {
                 return null;
             }
