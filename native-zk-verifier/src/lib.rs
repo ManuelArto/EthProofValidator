@@ -2,7 +2,7 @@ use std::slice;
 use std::panic;
 
 mod verifiers;
-use verifiers::{ Verifier, VerifierType, openvm::OpenVmVerifier, pico::PicoVerifier, sp1_hypercube::Sp1HypercubeVerifier, zisk::ZiskVerifier };
+use verifiers::{ Verifier, VerifierType, openvm::OpenVmVerifier, pico::PicoVerifier, sp1_hypercube::Sp1HypercubeVerifier, zisk::ZiskVerifier, airbender::AirbenderVerifier };
 
 #[no_mangle]
 pub extern "C" fn verify(
@@ -13,7 +13,8 @@ pub extern "C" fn verify(
     vk_len: usize,
 ) -> i32 {
     // Check for null pointers from C# safety
-    if proof_ptr.is_null() || vk_ptr.is_null() {
+    // Note: Airbender does not require a vk
+    if proof_ptr.is_null() || (vk_ptr.is_null() && zk_type != VerifierType::Airbender as u32) {
         return -1;
     }
 
@@ -33,6 +34,7 @@ pub extern "C" fn verify(
             VerifierType::OpenVm => OpenVmVerifier::verify(proof, vk),
             VerifierType::Pico => PicoVerifier::verify(proof, vk),
             VerifierType::Sp1Hypercube => Sp1HypercubeVerifier::verify(proof, vk),
+            VerifierType::Airbender => AirbenderVerifier::verify(proof, vk),
         }
     });
 
