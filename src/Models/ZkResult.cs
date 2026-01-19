@@ -1,4 +1,4 @@
-namespace Nethermind.EthProofValidator.Models;
+namespace EthProofValidator.Models;
 
 public enum ZkResult
 {

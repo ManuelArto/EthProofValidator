@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 
-namespace Nethermind.EthProofValidator.Native;
+namespace EthProofValidator.Native;
 
 internal static partial class NativeMethods
 {

@@ -1,8 +1,8 @@
 using System.Collections.Concurrent;
-using Nethermind.EthProofValidator.Clients;
-using Nethermind.EthProofValidator.Models;
+using EthProofValidator.Clients;
+using EthProofValidator.Models;
 
-namespace Nethermind.EthProofValidator.Verifiers;
+namespace EthProofValidator.Verifiers;
 
 public class VerifierRegistry(EthProofsApiClient apiClient): IDisposable
 {

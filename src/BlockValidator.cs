@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
-using Nethermind.EthProofValidator.Clients;
-using Nethermind.EthProofValidator.Models;
-using Nethermind.EthProofValidator.Verifiers;
+using EthProofValidator.Clients;
+using EthProofValidator.Models;
+using EthProofValidator.Verifiers;
 
-namespace Nethermind.EthProofValidator;
+namespace EthProofValidator;
 
 public class BlockValidator
 {

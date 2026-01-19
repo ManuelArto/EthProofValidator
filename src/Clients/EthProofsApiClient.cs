@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
-using Nethermind.EthProofValidator.Models;
+using EthProofValidator.Models;
 
-namespace Nethermind.EthProofValidator.Clients;
+namespace EthProofValidator.Clients;
 
 public class EthProofsApiClient
 {

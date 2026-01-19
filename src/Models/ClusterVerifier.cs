@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace Nethermind.EthProofValidator.Models;
+namespace EthProofValidator.Models;
 
 public class ClusterVerifier
 {

@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
-using Nethermind.EthProofValidator.Models;
-using Nethermind.EthProofValidator.Native;
+using EthProofValidator.Models;
+using EthProofValidator.Native;
 
-namespace Nethermind.EthProofValidator.Verifiers;
+namespace EthProofValidator.Verifiers;
 
 public class ZkProofVerifier : IDisposable
 {

@@ -1,4 +1,4 @@
-﻿namespace Nethermind.EthProofValidator;
+﻿namespace EthProofValidator;
 
 class Program
 {
