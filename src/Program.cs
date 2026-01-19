@@ -1,26 +1,25 @@
-﻿namespace EthProofValidator.src
+﻿namespace Nethermind.EthProofValidator;
+
+class Program
 {
-    class Program
+    static async Task Main(string[] args)
     {
-        static async Task Main(string[] args)
+        if (args.Length < 2 || !int.TryParse(args[0], out int latestBlockId) || !int.TryParse(args[1], out int blockCount))
         {
-            if (args.Length < 2 || !int.TryParse(args[0], out int latestBlockId) || !int.TryParse(args[1], out int blockCount))
-            {
-                Console.WriteLine("Usage: dotnet run <LatestBlockId> <BlockCount>");
-                Console.WriteLine("Example: dotnet run 24182465 65");
-                return;
-            }
+            Console.WriteLine("Usage: dotnet run <LatestBlockId> <BlockCount>");
+            Console.WriteLine("Example: dotnet run 24182425 25");
+            return;
+        }
 
-            BlockValidator validator = new BlockValidator();
+        BlockValidator validator = new BlockValidator();
 
-            while (blockCount-- > 0)
-            {
-                int blockId = latestBlockId - blockCount;
-                var sw = System.Diagnostics.Stopwatch.StartNew();
-                await validator.ValidateBlockAsync(blockId);
-                sw.Stop();
-                Console.WriteLine($"⏱️  Total Time: {sw.ElapsedMilliseconds} ms");
-            }
+        while (blockCount-- > 0)
+        {
+            int blockId = latestBlockId - blockCount;
+            var sw = System.Diagnostics.Stopwatch.StartNew();
+            await validator.ValidateBlockAsync(blockId);
+            sw.Stop();
+            Console.WriteLine($"⏱️  Total Time: {sw.ElapsedMilliseconds} ms");
         }
     }
 }

@@ -1,10 +1,9 @@
-namespace EthProofValidator.src.Models
+namespace Nethermind.EthProofValidator.Models;
+
+public enum ZkResult
 {
-    public enum ZkResult
-    {
-        Valid,
-        Invalid,
-        Failed,
-        Skipped,
-    }
+    Valid,
+    Invalid,
+    Failed,
+    Skipped,
 }
