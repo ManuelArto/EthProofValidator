@@ -21,8 +21,8 @@ use verifier_common::prover::definitions::MerkleTreeCap;
 
 pub struct AirbenderVerifier;
 
-const DEFAULT_SETUP_BIN: &[u8] = include_bytes!("../../artifacts/airbender/recursion_unified_setup.bin");
-const DEFAULT_LAYOUT_BIN: &[u8] = include_bytes!("../../artifacts/airbender/recursion_unified_layouts.bin");
+const DEFAULT_SETUP_BIN: &[u8] = include_bytes!("../../assets/airbender/recursion_unified_setup.bin");
+const DEFAULT_LAYOUT_BIN: &[u8] = include_bytes!("../../assets/airbender/recursion_unified_layouts.bin");
 
 pub fn init_defaults() -> Result<()> {
     init_with(DEFAULT_SETUP_BIN, DEFAULT_LAYOUT_BIN)
